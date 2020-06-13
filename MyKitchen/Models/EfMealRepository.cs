@@ -79,7 +79,7 @@ namespace MyKitchen.Models
 
         public IEnumerable<Meal> GetMeals()
         {
-            return context.Meals.AsEnumerable();
+            return context.Meals.Include(x => x.MealFoodItems).ThenInclude(x => x.FoodItems).AsEnumerable();
         }
 
         private IEnumerable<Meal> GetEnumerable()

@@ -11,6 +11,7 @@
     <hr />
     <h4>@Model.Meal.MealName</h4>
         <dt>
+            <h3>Food Items</h3>
     @foreach (var item in @Model.Meal.MealFoodItems)
     {
         var foodItem = item.FoodItems.FoodItemName;

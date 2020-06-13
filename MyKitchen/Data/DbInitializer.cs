@@ -2,17 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MyKitchen.Models;
 
 namespace MyKitchen.Data
 {
     public static class DbInitializer
     {
-        public static void Initialize(ApplicationDbContext context)
+        public static void Initialize(ApplicationDbContext context,UserManager<ApplicationUser> usermanager, IFoodItemRepository foodItemRepository)
         {
+
+
+
+
             context.Database.Migrate();
             CreateViews(context);
-            InitializeFoodItems(context);
+            InitializeFoodItems(context,usermanager,foodItemRepository);
             InitializeFoodGroups(context);
 
 
@@ -51,8 +57,12 @@ namespace MyKitchen.Data
             context.SaveChanges();
         }
 
-        private static void InitializeFoodItems(ApplicationDbContext context)
+        private static void InitializeFoodItems(ApplicationDbContext context,UserManager<ApplicationUser> userManager,IFoodItemRepository foodItemRepo)
         {
+            //TODO do everything with the repository here.
+            //add these food items to our test user, and to any new users who are registered.
+            var user = userManager.FindByEmailAsync("matteskolin@gmail.com").GetAwaiter().GetResult();
+
             if (context.FoodItems.Any())
             {
                 return; // DB has been seeded
@@ -64,18 +74,15 @@ namespace MyKitchen.Data
                 new FoodItem() {Cost = 0.00M, FoodDescription = "Romaine Lettuce", FoodItemName = "Romaine Lettuce"},
                 new FoodItem() {Cost = 0.00M, FoodDescription = "Baked Beans", FoodItemName = "Canned Baked Beans"},
                 new FoodItem() {Cost = 0.00M, FoodDescription = "Cage Free Egg", FoodItemName = "Egg - Scrambled"},
-                new FoodItem()
-                    {Cost = 0.00M, FoodDescription = "Cage Free Egg", FoodItemName = "Little Sizzlers Sausage"}
-
-
+                new FoodItem() {Cost = 0.00M, FoodDescription = "Cage Free Egg", FoodItemName = "Little Sizzlers Sausage"}
             };
 
-            foreach (var itme in seedFoodItems)
+            //add to test user
+            foreach(var item in seedFoodItems)
             {
-                context.FoodItems.Add(itme);
+                foodItemRepo.Add(item).GetAwaiter().GetResult();
+                foodItemRepo.AddFoodForUser(user,item).GetAwaiter().GetResult();;
             }
-
-            context.SaveChanges();
         }
     }
 }

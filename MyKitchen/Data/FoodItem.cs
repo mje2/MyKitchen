@@ -15,13 +15,12 @@ namespace MyKitchen.Data
         [Key]
         public int FoodItemID {get; set;}
 
-
         [ForeignKey("FoodGroup")]
         [Display(Name="Food Group")]
         public int? FoodGroupID { get; set; }
 
-
         [Display(Name="Name")]
+        [Required]
         public string FoodItemName { get; set; }
 
         [Display(Name="Restaurant")]

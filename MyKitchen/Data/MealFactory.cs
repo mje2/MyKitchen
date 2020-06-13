@@ -2,7 +2,7 @@ namespace MyKitchen.Data
 {
     public class MealFactory
     {
-        public MealFactory(ApplicationDbContext ctx) { }
+        public MealFactory() { }
         public Meal NewMeal()
         {
             var name = "Satisfying Meal 1";
