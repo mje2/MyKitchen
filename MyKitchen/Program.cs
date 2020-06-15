@@ -30,11 +30,12 @@ namespace MyKitchen
 
                 try
                 {
+                    //TODO RESEARCH - learn how to use scopes and possibly DI into a class outside of a controller.
+                    //for now we will pass in the required dependencies for the DBInitializer in the constructor.
+
                     var context = services.GetRequiredService<MyKitchen.Data.ApplicationDbContext>();
                     var userManager = services.GetService<UserManager<ApplicationUser>>();
                     var foodItemRepository = services.GetService<IFoodItemRepository>();
-
-
 
                     DbInitializer.Initialize(context,userManager,foodItemRepository);
 
@@ -44,15 +45,9 @@ namespace MyKitchen
                     var logger = services.GetRequiredService<ILogger<Program>>();
                     logger.LogError(ex, "An error occured while seeding the database.");
                 }
-
-
-
-
             }
 
             host.Run();
-
-
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

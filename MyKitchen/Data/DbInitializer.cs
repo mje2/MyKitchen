@@ -8,30 +8,33 @@ using MyKitchen.Models;
 
 namespace MyKitchen.Data
 {
-    public static class DbInitializer
+    public class DbInitializer
     {
-        public static void Initialize(ApplicationDbContext context,UserManager<ApplicationUser> usermanager, IFoodItemRepository foodItemRepository)
-        {
+        private ApplicationDbContext Context {get; set;}
+        private UserManager<ApplicationUser> UserManager {get; set;}
+        private IFoodItemRepository FoodItemRepository {get; set;}
 
+        private DbInitializer(ApplicationDbContext context, UserManager<ApplicationUser> usermanager,IFoodItemRepository foodItemRepository){
 
-
-
-            context.Database.Migrate();
-            CreateViews(context);
-            InitializeFoodItems(context,usermanager,foodItemRepository);
-            InitializeFoodGroups(context);
-
-
+           this.Context = context;
+           this.UserManager  =  usermanager;
+           this.FoodItemRepository = foodItemRepository;
         }
 
-        private static void CreateViews(ApplicationDbContext context)
-        {
+        private void InitializeDatabase(){
 
-
-
+            Context.Database.Migrate();
+            InitializeFoodItems(Context,UserManager,FoodItemRepository);
+            InitializeFoodGroups(Context);
         }
 
-        private static void InitializeFoodGroups(ApplicationDbContext context)
+        public static void Initialize(ApplicationDbContext context, UserManager<ApplicationUser> usermanager,IFoodItemRepository foodItemRepository)
+        {
+            var dbInitializer = new DbInitializer(context, usermanager,foodItemRepository);
+            dbInitializer.InitializeDatabase();
+        }
+
+        private void InitializeFoodGroups(ApplicationDbContext context)
         {
             if (context.FoodGroups.Any())
             {
@@ -71,10 +74,10 @@ namespace MyKitchen.Data
 
             var seedFoodItems = new FoodItem[]
             {
-                new FoodItem() {Cost = 0.00M, FoodDescription = "Romaine Lettuce", FoodItemName = "Romaine Lettuce"},
-                new FoodItem() {Cost = 0.00M, FoodDescription = "Baked Beans", FoodItemName = "Canned Baked Beans"},
-                new FoodItem() {Cost = 0.00M, FoodDescription = "Cage Free Egg", FoodItemName = "Egg - Scrambled"},
-                new FoodItem() {Cost = 0.00M, FoodDescription = "Cage Free Egg", FoodItemName = "Little Sizzlers Sausage"}
+                new FoodItem() {Cost = 0.00M, FoodDescription = "", FoodItemName = "Mixed Greens"},
+                new FoodItem() {Cost = 0.00M, FoodDescription = "", FoodItemName = "Scrambled Egg"},
+                new FoodItem() {Cost = 0.00M, FoodDescription = "", FoodItemName = "Fried Egg"},
+                new FoodItem() {Cost = 0.00M, FoodDescription = "", FoodItemName = "Breakfast Sausage"}
             };
 
             //add to test user
