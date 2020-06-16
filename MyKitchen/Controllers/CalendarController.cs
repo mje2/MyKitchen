@@ -12,9 +12,7 @@ namespace MyKitchen.Controllers
         //allow food items or meals to be added to the calendar
 
 
-
         private ApplicationDbContext ctx { get; set; }
-
 
         public int PageSize = 10;
 
@@ -122,12 +120,5 @@ namespace MyKitchen.Controllers
 
             return new JsonResult(true);
         }
-
-
-
-
-
-
-
     }
 }
