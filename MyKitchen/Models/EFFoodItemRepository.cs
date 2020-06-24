@@ -32,7 +32,6 @@ namespace MyKitchen.Models
         //Adds an association between a food item and a user.
         public async Task<int> AddFoodForUser(ApplicationUser user, FoodItem foodItem)
         {
-
             var userFoodItem = new MyKitchen.Data.UserFoodItem();
             userFoodItem.FoodItemID = foodItem.FoodItemID;
             userFoodItem.AppUser = user;
@@ -40,8 +39,6 @@ namespace MyKitchen.Models
             _context.UserFoodItems.Add(userFoodItem);
             return await _context.SaveChangesAsync();
         }
-
-
 
         public Task<FoodItem> Find(int id)
         {
@@ -56,12 +53,12 @@ namespace MyKitchen.Models
             return _context.FoodItems.FindAsync(id).AsTask();
         }
 
-        public Task SaveChangesAsync()
+        protected Task SaveChangesAsync()
         {
             return _context.SaveChangesAsync();
         }
 
-        public void SaveChanges()
+        protected void SaveChanges()
         {
             _context.SaveChanges();
         }
@@ -80,6 +77,7 @@ namespace MyKitchen.Models
             _context.UserFoodItems.RemoveRange(userFoodItems);
             //remove the fooditem
             _context.FoodItems.Remove(foodItem);
+            _context.SaveChanges();
             
         }
 

@@ -10,9 +10,17 @@ using Xunit;
 
 namespace MyKitchen.Tests
 {
-    public class FoodItemRepositoryTests
+    public class FoodItemRepositoryTests:IClassFixture<SharedTestContext>
     {
-  [Fact]
+        public SharedTestContext Fixture { get; private set; }
+
+        public FoodItemRepositoryTests(SharedTestContext fixture)
+        {
+            this.Fixture = fixture;
+        }
+
+
+        [Fact]
         public void CanAddFoodItem()
         {
             //dependencies
@@ -43,37 +51,70 @@ namespace MyKitchen.Tests
             });
 
             //make sure item has been added.
-            
-
-
         }
 
-
-        [Fact(Skip="In Development")]
+        [Fact]
         public void CanAddUserFoodItem()
         {
- 
-            //arrange
-                //dependencies
-                    //user 
-            //dependencies
-            var serviceProvider = new ServiceCollection().AddLogging().BuildServiceProvider();
+            var rand = new System.Random(DateTime.Now.Millisecond);
+            var user = this.Fixture.TestUserManager.Users.FirstOrDefault();
 
-            var factory = serviceProvider.GetService<ILoggerFactory>();
+            if(user == null)
+            {
+                //Fail
+                Assert.True(false);
+            }
 
-            var logger = factory.CreateLogger<EFFoodItemRepository>();
+            var name = $"Food_Item_For_User_Test_{user.Id}-{rand}";
 
+            var newFoodItem = new FoodItem(){
+                FoodItemName = name,
+                FoodDescription = "Test Description"
+            };
 
-                   // UserManager<ApplicationUser> userManager
+            Fixture.TestFoodItemRepository.Add(newFoodItem).Wait();
+            Fixture.TestFoodItemRepository.AddFoodForUser(user,newFoodItem).Wait();;
 
-
-            //act
-
-
-            //assert
-            Assert.True(true);
+            Assert.True(Fixture.ApDbContext.FoodItems.Any(x => x.FoodItemName == name));
+            Assert.True(Fixture.ApDbContext.UserFoodItems.Include(x => x.AppUser).Any(x => x.AppUser.Id == user.Id && x.FoodItemID == newFoodItem.FoodItemID));
         }
-         
+
+        [Fact]
+        public void CanFindFoodItem()
+        {
+            var item = Fixture.ApDbContext.FoodItems.FirstOrDefault();
+            if(item == null) {Assert.True(false,"no food items available for testing");}
+
+            var foundItem = Fixture.TestFoodItemRepository.Find(item.FoodItemID).GetAwaiter().GetResult();
+            if(foundItem != null){Assert.True(true, $"found {item.FoodItemName}");}
+
+            Assert.True(false,"could not find food item");
+        }
+
+
+        [Fact]
+        public void CanDeleteFoodItem()
+        {
+            //do we need to delete all UserFoodItems as well?
+            //what about deleting from MealFoodItems?
+            //What about deleting from events?
+
+            //Can all of this be handled by the Cascade?
+            var item = Fixture.ApDbContext.FoodItems.FirstOrDefault(x => x.FoodItemName.Contains("Food_Item_For_User"));
+            if(item == null) Assert.True(false);
+
+            //delete item
+            Fixture.TestFoodItemRepository.Remove(item);
+
+
+
+
+            
+        
+        }
+
+
+
 
 
 

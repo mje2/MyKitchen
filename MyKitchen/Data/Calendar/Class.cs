@@ -37,5 +37,4 @@ namespace MyKitchen.Data.Calendar
 
         public virtual FoodItem FoodItems { get; set; }
     }
-    
 }

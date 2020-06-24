@@ -140,7 +140,6 @@ namespace MyKitchen.Controllers
                 try
                 {
                     repository.Update(foodItem);
-                    await repository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -194,7 +193,6 @@ namespace MyKitchen.Controllers
             var foodItem = await repository.Find(id);
             repository.Remove(foodItem);
 
-            await repository.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

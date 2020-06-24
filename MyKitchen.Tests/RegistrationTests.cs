@@ -1,50 +1,10 @@
 using MyKitchen.Data;
-using MyKitchen.Models;
 using Xunit;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 
 namespace MyKitchen.Tests
 {
-    public class SharedTestContext : IDisposable
-    {
-        public SharedTestContext()
-        {
-                
-                var services = new ServiceCollection();
-
-                services.AddLogging();
-                
-                services.AddIdentity<ApplicationUser, Microsoft.AspNetCore.Identity.IdentityRole>()
-                    .AddEntityFrameworkStores<ApplicationDbContext>()
-                    .AddDefaultTokenProviders();
-
-                services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer( WithTestDatabase.MyConnectionString));
-                services.AddTransient<EFFoodItemRepository>();
-
-                var sp = services.BuildServiceProvider();
-
-                TestFoodItemRepository = sp.GetService<EFFoodItemRepository>();
-                TestUserManager = sp.GetService<UserManager<ApplicationUser>>();
-                ApDbContext = sp.GetService<ApplicationDbContext>();
-
-
-        }
-
-        public EFFoodItemRepository TestFoodItemRepository { get; private set; }
-        public UserManager<ApplicationUser> TestUserManager { get; private set; }
-        public ApplicationDbContext ApDbContext { get; private set; }
-
-        public void Dispose()
-        {
-            // ... clean up test data from the database ...
-        }
-
-    }
-
 
     public class RegistrationTests :IClassFixture<SharedTestContext>{
 

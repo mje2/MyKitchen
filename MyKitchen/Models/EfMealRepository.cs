@@ -36,11 +36,9 @@ namespace MyKitchen.Models
 
         public Task<Meal> FindAsync(int id)
         {
-            var meal = new Meal();
 
-            IIncludableQueryable<Meal, FoodItem> wackyEntity = context.Meals.Include(x => x.MealFoodItems).ThenInclude(x => x.FoodItems);
-            
-            throw new NotImplementedException();
+            var meal   = context.Meals.Where(x => x.MealID == id).Include(x => x.MealFoodItems).ThenInclude(x => x.FoodItems).FirstOrDefaultAsync();
+            return meal;
         }
 
         public Meal Find(int id)

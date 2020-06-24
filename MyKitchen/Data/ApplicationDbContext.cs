@@ -35,7 +35,7 @@ namespace MyKitchen.Data
         {
             base.OnModelCreating(builder);
             builder.Entity<MealFoodItems>(x => { x.HasIndex(y => new {y.FoodItemId, y.MealId}).IsUnique(); });
-            builder.Entity<FoodItem>().HasOne(x => x.FoodGroup).WithMany(y => y.FoodItem);
+            builder.Entity<FoodItem>().HasOne(x => x.FoodGroup).WithMany(y => y.FoodItem).OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<vwsMealsAndFoodItems>().HasNoKey();
 

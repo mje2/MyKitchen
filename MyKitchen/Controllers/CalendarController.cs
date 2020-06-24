@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using MyKitchen.BL;
 using MyKitchen.Data;
 using MyKitchen.Data.Calendar;
+using MyKitchen.Models;
 
 namespace MyKitchen.Controllers
 {
@@ -11,17 +14,24 @@ namespace MyKitchen.Controllers
     {
         //allow food items or meals to be added to the calendar
 
-
-        private ApplicationDbContext ctx { get; set; }
+        private IFoodEventRepository FoodEventRepo {get; set;}
+        private MyKitchen.Models.DBViews DBViews {get; set;}
 
         public int PageSize = 10;
 
-        public CalendarController(ApplicationDbContext context)
+        private UserInfo CurrentUser {get; set;}
+        private readonly ILogger _logger;
+
+        public CalendarController(IFoodEventRepository foodEventRepo,
+                                  ILogger<CalendarController> logger, 
+                                  DBViews dBViews,
+                                  UserInfo userInfo)
         {
-            ctx = context;
+            DBViews = dBViews;
+            FoodEventRepo = foodEventRepo;
+            CurrentUser = userInfo;
+            _logger = logger;
         }
-
-
         public IActionResult Index()
         {
             return View();
@@ -29,13 +39,13 @@ namespace MyKitchen.Controllers
 
         public JsonResult GetEvents()
         {
-            var events = ctx.Events.ToList();
+            var events = FoodEventRepo.GetFoodEvents(CurrentUser.User).ToList();
             return new JsonResult(events);
         }
 
         public JsonResult GetEventsFeed()
         {
-            var events = ctx.Events.ToList().Select(FullCalendarEvent.FromEvent);
+            var events = FoodEventRepo.GetFoodEvents(CurrentUser.User).ToList().Select(FullCalendarEvent.FromEvent);
             return new JsonResult(events);
         }
 
@@ -72,7 +82,7 @@ namespace MyKitchen.Controllers
 
         public JsonResult GetAvailableItems()
         {
-            var items = ctx.vwsMealsAndFoodItems.ToList();
+            var items = this.DBViews.VwsMealsAndFoodItems().ToList();
             return new JsonResult(items);
         }
 
@@ -81,24 +91,15 @@ namespace MyKitchen.Controllers
         [HttpPost]
         public JsonResult SaveNewEvent([FromBody] Events event1)
         {
-
-            //Save new Event to DB
-            ctx.Events.Add(event1);
-            ctx.SaveChanges();
-
+            FoodEventRepo.AddFoodEvent(CurrentUser.User,event1);
             return new JsonResult(true);
-
-
         }
 
         [HttpPost]
         public JsonResult UpdateEvent([FromBody]Events event1)
         {
             if(event1.EventID < 1) {  return new JsonResult(false);}
-
-            var updateEvent = ctx.Events.FirstOrDefault(x => x.EventID == event1.EventID);
-            updateEvent.Start = event1.Start;
-            ctx.SaveChanges();
+            FoodEventRepo.Update(event1);
 
             return new JsonResult(true);
         }
@@ -114,9 +115,10 @@ namespace MyKitchen.Controllers
         {
             var smonth = cmd.Month + 1;
 
-            List<Events> monthEvents = ctx.Events.Where(x => x.Start.Month == smonth).ToList();
-            ctx.Events.RemoveRange(monthEvents);
-            ctx.SaveChanges();
+            FoodEventRepo.RemoveRange(smonth,CurrentUser.User);
+
+
+
 
             return new JsonResult(true);
         }
