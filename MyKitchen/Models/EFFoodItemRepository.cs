@@ -71,11 +71,12 @@ namespace MyKitchen.Models
 
         public void Remove(FoodItem foodItem)
         {
-            var userFoodItems = _context.UserFoodItems.Where(x => x.FoodItemID == foodItem.FoodItemID).ToList();
+            //Because FoodItems is set to OnDelete = Cascade, deleting UserFoodItems should not be necessary, but we will leave it here in case
+            //we decide not to use the cascade.
 
-            //remove all userfood Items associated with this FoodItem
+            var userFoodItems = _context.UserFoodItems.Where(x => x.FoodItemID == foodItem.FoodItemID).ToList();
             _context.UserFoodItems.RemoveRange(userFoodItems);
-            //remove the fooditem
+
             _context.FoodItems.Remove(foodItem);
             _context.SaveChanges();
             
@@ -102,10 +103,6 @@ namespace MyKitchen.Models
                               select foodItems).AsQueryable();
 
             return cresult;
-
-
-
-
 
             // var userFoodItems = _context.UserFoodItems.Where(x => x.AppUser.Id == user.Id).Select(x => x.FoodItems
             // .Include(x => x.FoodGroups)).ToLIst();
