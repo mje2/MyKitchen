@@ -11,5 +11,9 @@ namespace MyKitchen.Data
         public int ItemID { get; set; }
 
         public string ItemType { get; set; }
+
+        public string AppUserId {get; set;}
+
+        
     }
 }

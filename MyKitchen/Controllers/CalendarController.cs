@@ -12,15 +12,16 @@ namespace MyKitchen.Controllers
 {
     public class CalendarController : Controller
     {
-        //allow food items or meals to be added to the calendar
 
+        //Dependencies
         private IFoodEventRepository FoodEventRepo {get; set;}
         private MyKitchen.Models.DBViews DBViews {get; set;}
+        private readonly ILogger _logger;
+        private UserInfo CurrentUser {get; set;}
 
+        //Properties
         public int PageSize = 10;
 
-        private UserInfo CurrentUser {get; set;}
-        private readonly ILogger _logger;
 
         public CalendarController(IFoodEventRepository foodEventRepo,
                                   ILogger<CalendarController> logger, 
@@ -82,7 +83,8 @@ namespace MyKitchen.Controllers
 
         public JsonResult GetAvailableItems()
         {
-            var items = this.DBViews.VwsMealsAndFoodItems().ToList();
+            //should only show items for the current user
+            var items = this.DBViews.VwsMealsAndFoodItems(this.CurrentUser.User).ToList();
             return new JsonResult(items);
         }
 
